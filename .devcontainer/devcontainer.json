@@ -3,19 +3,40 @@
 {
 	"name": "openwebui",
 
+	// Container name
+	// "runArgs": ["--name", "openwebui-devcontainer"],
+  
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    
+    // Defaults to true for when using an image Dockerfile and false when referencing a Docker Compose file.
+    // overrideCommand: true
+    
+    // The 'service' property is the name of the service for the container that VS Code should
+	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
+	// "service": "mycontainer",
+
 	// Update the 'dockerComposeFile' list if you have more compose files or use different names.
 	// The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
-	"dockerComposeFile": [
+	/* "dockerComposeFile": [
+		"../docker-compose.yml",
 		"docker-compose.yml"
-	],
+	],*/
+    // Uncomment the next line if you want start specific services in your Docker Compose config.
+	// "runServices": [],
+    
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+    
+    // Set `remoteUser` to `root` to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+    // "remoteUser": "vscode"
 
-	// The 'service' property is the name of the service for the container that VS Code should
-	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
-	"service": "openwebui",
+	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
+	// "shutdownAction": "none",
 
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
-	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
-	"workspaceFolder": "/workspaces",
+	// connected. source=${localWorkspaceFolder}
+	"workspaceFolder": "/workspace",
+    "workspaceMount": "source=.,target=/workspace,type=bind,consistency=cached",
 
 	"mounts": [
 		{
@@ -28,8 +49,8 @@
 			"target": "/root/.vscode-server/data/User/globalStorage/kilocode.kilo-code",
 			"type": "bind" 
 		},
-		"source=node_modules,target=/workspaces/node_modules,type=volume"
-	  ],
+		"source=openwebui_node_modules,target=/workspace/node_modules,type=volume"
+	],
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
@@ -47,16 +68,8 @@
 		}
 	},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Uncomment the next line if you want start specific services in your Docker Compose config.
-	// "runServices": [],
-
-	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
-	// "shutdownAction": "none",
-
-	// Uncomment the next line to run commands after the container is created.
+	// Run commands after the container is created. Executes *inside* the container.
+	
 	"updateContentCommand": ".devcontainer/install.sh",
 
 	"customizations": {
@@ -66,7 +79,4 @@
 			]
 		}
 	}
-
-	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "devcontainer"
 }

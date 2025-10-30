@@ -1,3 +1,5 @@
+.devcontainer/container*
+
 x.py
 yarn.lock
 .DS_Store
