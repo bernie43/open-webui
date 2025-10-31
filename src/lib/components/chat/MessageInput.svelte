@@ -141,6 +141,11 @@
 		codeInterpreterEnabled
 	});
 
+	const handleSubmit = () => {
+		dispatch('submit', prompt);
+		document.getElementById('chat-input')?.blur();
+	};
+
 	const inputVariableHandler = async (text: string): Promise<string> => {
 		inputVariables = extractInputVariables(text);
 
@@ -334,11 +339,14 @@
 
 		text = await textVariableHandler(text);
 
+		chatInputElement?.insertContent(text);
+		/*
 		if (command) {
 			replaceCommandWithText(text);
 		} else {
 			chatInputElement?.insertContent(text);
 		}
+		*/
 
 		await tick();
 		text = await inputVariableHandler(text);
@@ -1039,7 +1047,7 @@
 								document.getElementById('chat-input')?.focus();
 
 								if ($settings?.speechAutoSend ?? false) {
-									dispatch('submit', prompt);
+									handleSubmit();
 								}
 							}}
 						/>
@@ -1048,7 +1056,7 @@
 							class="w-full flex flex-col gap-1.5"
 							on:submit|preventDefault={() => {
 								// check if selectedModels support image input
-								dispatch('submit', prompt);
+								handleSubmit();
 							}}
 						>
 							<div
@@ -1315,7 +1323,7 @@
 																	if (enterPressed) {
 																		e.preventDefault();
 																		if (prompt !== '' || files.length > 0) {
-																			dispatch('submit', prompt);
+																			handleSubmit();
 																		}
 																	}
 																}
