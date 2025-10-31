@@ -1,4 +1,5 @@
 .devcontainer/container*
+data/
 
 x.py
 yarn.lock

@@ -50,10 +50,20 @@
 			"target": "/root/.vscode-server/data/User/globalStorage/kilocode.kilo-code",
 			"type": "bind" 
 		},
+		{
+			"source": "${localWorkspaceFolder}/data",
+			"target": "/var/openwebui-data",
+			"type": "bind" 
+		},
 		"source=${localWorkspaceFolderBasename}_node_modules,target=/workspace/node_modules,type=volume",
         "source=${localWorkspaceFolderBasename}_pip_cache,target=/var/cache/pip,type=volume"
 	],
 
+	"containerEnv": { "DATA_DIR": "/var/openwebui-data" },
+
+	// Run commands after the container is created. Executes *inside* the container.
+	"updateContentCommand": ".devcontainer/install.sh",
+	
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {
@@ -69,10 +79,6 @@
 			"version": "3.11"
 		}
 	},
-
-	// Run commands after the container is created. Executes *inside* the container.
-	
-	"updateContentCommand": ".devcontainer/install.sh",
 
 	"customizations": {
 		"vscode": {
