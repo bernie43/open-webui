@@ -311,7 +311,8 @@ export const generateTextCompletion = async (token: string = '', model: string, 
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
+			Authorization: `Bearer ${token}`,
+			Debug: window.__DEBUG__
 		},
 		body: JSON.stringify({
 			model: model,
@@ -340,7 +341,8 @@ export const generateChatCompletion = async (token: string = '', body: object) =
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
+			Authorization: `Bearer ${token}`,
+			Debug: window.__DEBUG__
 		},
 		body: JSON.stringify(body)
 	}).catch((err) => {

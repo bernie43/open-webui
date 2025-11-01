@@ -110,6 +110,14 @@
 				console.log('Additional details:', details);
 			}
 		});
+
+		_socket.on('log', (data) => {
+			let message = data;
+			try {
+				message = JSON.parse(data);
+			} catch(e) {}
+			console.log("DEBUG LOG", message);
+		});
 	};
 
 	const executePythonAsWorker = async (id, code, cb) => {

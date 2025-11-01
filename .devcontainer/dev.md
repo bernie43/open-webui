@@ -9,6 +9,11 @@ Data dir: ./data
 User: admin@admin.com - admin
 
 
+Debug:
+window.__DEBUG__ = true
+Dann loggt es Chat Completion Requests über Websocket
+
+
 Docker:
 docker context use remote-machine
 docker build -t open-webui-custom .

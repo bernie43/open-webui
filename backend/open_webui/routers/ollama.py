@@ -10,6 +10,7 @@ import random
 import re
 import time
 from datetime import datetime
+from open_webui.socket.main import sio
 
 from typing import Optional, Union
 from urllib.parse import urlparse
@@ -1242,9 +1243,17 @@ async def generate_completion(
     if prefix_id:
         form_data.model = form_data.model.replace(f"{prefix_id}.", "")
 
+    request_url = f"{url}/api/generate"
+    payload_dump = form_data.model_dump_json(exclude_none=True).encode()
+
+    if request.headers.get("Debug"):
+        await sio.emit("log", "Ollama Generate Payload:")
+        await sio.emit("log", request_url)
+        await sio.emit("log", payload_dump)
+
     return await send_post_request(
-        url=f"{url}/api/generate",
-        payload=form_data.model_dump_json(exclude_none=True).encode(),
+        url=request_url,
+        payload=payload_dump,
         key=get_api_key(url_idx, url, request.app.state.config.OLLAMA_API_CONFIGS),
         user=user,
     )
@@ -1372,9 +1381,17 @@ async def generate_chat_completion(
     if prefix_id:
         payload["model"] = payload["model"].replace(f"{prefix_id}.", "")
 
+    request_url = f"{url}/api/chat"
+    payload_dump = json.dumps(payload)
+
+    if request.headers.get("Debug"):
+        await sio.emit("log", "Ollama Chat Payload:")
+        await sio.emit("log", request_url)
+        await sio.emit("log", payload_dump)
+
     return await send_post_request(
-        url=f"{url}/api/chat",
-        payload=json.dumps(payload),
+        url=request_url,
+        payload=payload_dump,
         stream=form_data.stream,
         key=get_api_key(url_idx, url, request.app.state.config.OLLAMA_API_CONFIGS),
         content_type="application/x-ndjson",
@@ -1561,9 +1578,17 @@ async def generate_openai_chat_completion(
     if prefix_id:
         payload["model"] = payload["model"].replace(f"{prefix_id}.", "")
 
+    request_url = f"{url}/v1/chat/completions"
+    payload_dump = json.dumps(payload)
+
+    if request.headers.get("Debug"):
+        await sio.emit("log", "Ollama Chat Completion Payload:")
+        await sio.emit("log", request_url)
+        await sio.emit("log", payload_dump)
+
     return await send_post_request(
-        url=f"{url}/v1/chat/completions",
-        payload=json.dumps(payload),
+        url=request_url,
+        payload=payload_dump,
         stream=payload.get("stream", False),
         key=get_api_key(url_idx, url, request.app.state.config.OLLAMA_API_CONFIGS),
         user=user,

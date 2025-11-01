@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 from typing import Optional
+from open_webui.socket.main import sio
 
 import aiohttp
 from aiocache import cached
@@ -923,6 +924,12 @@ async def generate_chat_completion(
         request_url = f"{url}/chat/completions"
 
     payload = json.dumps(payload)
+
+    if request.headers.get("Debug"):
+        await sio.emit("log", "Chat Completion Payload:")
+        await sio.emit("log", request_url)
+        # await sio.emit("log", headers)  # Contains API Key, better don't send
+        await sio.emit("log", payload)
 
     r = None
     session = None

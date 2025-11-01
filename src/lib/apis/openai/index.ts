@@ -343,7 +343,8 @@ export const chatCompletion = async (
 		method: 'POST',
 		headers: {
 			Authorization: `Bearer ${token}`,
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			Debug: window.__DEBUG__
 		},
 		body: JSON.stringify(body)
 	}).catch((err) => {
@@ -370,7 +371,8 @@ export const generateOpenAIChatCompletion = async (
 		method: 'POST',
 		headers: {
 			Authorization: `Bearer ${token}`,
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			Debug: window.__DEBUG__
 		},
 		credentials: 'include',
 		body: JSON.stringify(body)
