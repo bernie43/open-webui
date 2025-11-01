@@ -290,10 +290,12 @@
 									document.getElementById('close-edit-message-button')?.click();
 								}
 
-								const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
-								const isEnterPressed = e.key === 'Enter';
+								const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
+								const enterPressed = ($settings?.ctrlEnterToSend ?? false)
+									? (e.key === 'Enter' || e.keyCode === 13) && isCtrlPressed
+									: (e.key === 'Enter' || e.keyCode === 13) && !e.shiftKey;
 
-								if (isCmdOrCtrlPressed && isEnterPressed) {
+								if (enterPressed) {
 									document.getElementById('confirm-edit-message-button')?.click();
 								}
 							}}
