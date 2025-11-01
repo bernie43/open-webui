@@ -276,7 +276,7 @@
 		const data = event?.data?.data ?? null;
 
 		if ((event.chat_id !== $chatId && !$temporaryChatEnabled) || isFocused) {
-			if (type === 'chat:completion') {
+			/* if (type === 'chat:completion') {
 				const { done, content, title } = data;
 
 				if (done) {
@@ -311,7 +311,8 @@
 						unstyled: true
 					});
 				}
-			} else if (type === 'chat:title') {
+			} else */ 
+			 if (type === 'chat:title') {
 				currentChatPage.set(1);
 				await chats.set(await getChatList(localStorage.token, $currentChatPage));
 			} else if (type === 'chat:tags') {
