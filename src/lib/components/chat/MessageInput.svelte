@@ -144,7 +144,7 @@
 	const handleSubmit = () => {
 		dispatch('submit', prompt);
 		if ($mobile) {
-			document.getElementById('chat-input')?.blur();
+			setTimeout(() => document.getElementById('chat-input')?.blur(), 0);
 		}
 	};
 
@@ -1272,7 +1272,7 @@
 															}
 
 															// Check if Ctrl + R is pressed
-															if (prompt === '' && isCtrlPressed && e.key.toLowerCase() === 'r') {
+															/* if (prompt === '' && isCtrlPressed && e.key.toLowerCase() === 'r') {
 																e.preventDefault();
 																console.log('regenerate');
 
@@ -1281,7 +1281,7 @@
 																]?.at(-1);
 
 																regenerateButton?.click();
-															}
+															} */
 
 															if (prompt === '' && e.key == 'ArrowUp') {
 																e.preventDefault();
