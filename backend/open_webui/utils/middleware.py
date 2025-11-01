@@ -1004,8 +1004,9 @@ async def process_chat_payload(request, form_data, user, metadata, model):
     system_message = get_system_message(form_data.get("messages", []))
     if system_message:  # Chat Controls/User Settings
         try:
+            # User System Prompt: Append
             form_data = apply_system_prompt_to_body(
-                system_message.get("content"), form_data, metadata, user, replace=True
+                system_message.get("content"), form_data, metadata, user, replace=False
             )  # Required to handle system prompt variables
         except:
             pass
@@ -1062,8 +1063,9 @@ async def process_chat_payload(request, form_data, user, metadata, model):
 
             if folder and folder.data:
                 if "system_prompt" in folder.data:
+                    # Folder System Prompt: Replace
                     form_data = apply_system_prompt_to_body(
-                        folder.data["system_prompt"], form_data, metadata, user
+                        folder.data["system_prompt"], form_data, metadata, user, replace=True
                     )
                 if "files" in folder.data:
                     form_data["files"] = [
