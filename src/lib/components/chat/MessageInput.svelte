@@ -146,7 +146,6 @@
 		if ($mobile) {
 			setTimeout(() => document.getElementById('chat-input')?.blur(), 0);
 		}
-		webSearchEnabled = false;
 	};
 
 	const inputVariableHandler = async (text: string): Promise<string> => {
@@ -1599,6 +1598,7 @@
 														: 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 '}"
 												>
 													<GlobeAlt className="size-4" strokeWidth="1.75" />
+													<div>Web Search</div>
 													<div class="hidden group-hover:block">
 														<XMark className="size-4" strokeWidth="1.75" />
 													</div>
@@ -1617,6 +1617,7 @@
 														: 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 '}"
 												>
 													<Photo className="size-4" strokeWidth="1.75" />
+													<div>Image Generation</div>
 													<div class="hidden group-hover:block">
 														<XMark className="size-4" strokeWidth="1.75" />
 													</div>
@@ -1642,7 +1643,7 @@
 														: 'focus:outline-hidden rounded-full'}"
 												>
 													<Terminal className="size-3.5" strokeWidth="2" />
-
+													<div>Code Interpreter</div>
 													<div class="hidden group-hover:block">
 														<XMark className="size-4" strokeWidth="1.75" />
 													</div>
