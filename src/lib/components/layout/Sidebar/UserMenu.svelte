@@ -21,6 +21,7 @@
 	import Code from '$lib/components/icons/Code.svelte';
 	import UserGroup from '$lib/components/icons/UserGroup.svelte';
 	import SignOut from '$lib/components/icons/SignOut.svelte';
+	import { shutdownServer } from '$lib/apis/utils';
 
 	const i18n = getContext('i18n');
 
@@ -217,6 +218,23 @@
 					<SignOut className="w-5 h-5" strokeWidth="1.5" />
 				</div>
 				<div class=" self-center truncate">{$i18n.t('Sign Out')}</div>
+			</DropdownMenu.Item>
+
+			<hr class=" border-gray-50 dark:border-gray-800 my-1 p-0" />
+
+			<DropdownMenu.Item
+				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+				on:click={async () => {
+					if (confirm("Shut down server?")) {
+						const res = await shutdownServer(localStorage.token);
+						alert("Shutdown");
+					}
+				}}
+			>
+				<div class=" self-center mr-3">
+					<SignOut className="w-5 h-5" strokeWidth="1.5" />
+				</div>
+				<div class=" self-center truncate">Shut down server</div>
 			</DropdownMenu.Item>
 
 			{#if usage}

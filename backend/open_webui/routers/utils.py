@@ -1,6 +1,8 @@
 import black
 import logging
 import markdown
+import os
+import signal
 
 from open_webui.models.chats import ChatTitleMessagesForm
 from open_webui.config import DATA_DIR, ENABLE_ADMIN_EXPORT
@@ -133,3 +135,9 @@ async def download_litellm_config_yaml(user=Depends(get_admin_user)):
         media_type="application/octet-stream",
         filename="config.yaml",
     )
+
+
+@router.post("/shutdown")
+async def shutdown(user=Depends(get_admin_user)):
+    os.kill(os.getpid(), signal.SIGKILL)
+    return {"status": True, "message": "Server shutting down..."}
