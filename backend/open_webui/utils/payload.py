@@ -17,6 +17,10 @@ def apply_system_prompt_to_body(
     user=None,
     replace: bool = False,
 ) -> dict:
+    # msg = form_data.get("messages", [])
+    # print(f"apply system prompt: {system}");
+    # print(f"messages: {msg}")
+
     if not system:
         return form_data
 
