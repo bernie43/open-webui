@@ -143,7 +143,9 @@
 
 	const handleSubmit = () => {
 		dispatch('submit', prompt);
-		document.getElementById('chat-input')?.blur();
+		if ($mobile) {
+			document.getElementById('chat-input')?.blur();
+		}
 	};
 
 	const inputVariableHandler = async (text: string): Promise<string> => {
