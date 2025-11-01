@@ -1,15 +1,11 @@
 import asyncio
-import inspect
 import json
 import logging
 import mimetypes
 import os
-import shutil
 import sys
 import time
-import random
 import re
-from uuid import uuid4
 
 
 from contextlib import asynccontextmanager
@@ -17,25 +13,18 @@ from urllib.parse import urlencode, parse_qs, urlparse
 from pydantic import BaseModel
 from sqlalchemy import text
 
-from typing import Optional
-from aiocache import cached
 import aiohttp
 import anyio.to_thread
 import requests
-from redis import Redis
 
 
 from fastapi import (
     Depends,
     FastAPI,
-    File,
-    Form,
     HTTPException,
     Request,
-    UploadFile,
     status,
     applications,
-    BackgroundTasks,
 )
 from fastapi.openapi.docs import get_swagger_ui_html
 
@@ -48,7 +37,7 @@ from starlette_compress import CompressMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import Response, StreamingResponse
+from starlette.responses import Response
 from starlette.datastructures import Headers
 
 from starsessions import (
@@ -106,7 +95,7 @@ from open_webui.internal.db import Session, engine
 
 from open_webui.models.functions import Functions
 from open_webui.models.models import Models
-from open_webui.models.users import UserModel, Users
+from open_webui.models.users import Users
 from open_webui.models.chats import Chats
 
 from open_webui.config import (
@@ -471,7 +460,6 @@ from open_webui.utils.chat import (
 )
 from open_webui.utils.embeddings import generate_embeddings
 from open_webui.utils.middleware import process_chat_payload, process_chat_response
-from open_webui.utils.access_control import has_access
 
 from open_webui.utils.auth import (
     get_license_data,
@@ -983,7 +971,6 @@ try:
         app.state.rf = None
 except Exception as e:
     log.error(f"Error updating models: {e}")
-    pass
 
 
 app.state.EMBEDDING_FUNCTION = get_embedding_function(
@@ -1367,7 +1354,6 @@ async def get_models(
         except Exception as e:
             log.debug(f"Error processing model tags: {e}")
             model["tags"] = []
-            pass
 
         models.append(model)
 
@@ -1595,7 +1581,6 @@ async def chat_completion(
                         await client.disconnect()
             except Exception as e:
                 log.debug(f"Error cleaning up: {e}")
-                pass
 
     if (
         metadata.get("session_id")
@@ -1952,7 +1937,6 @@ if len(app.state.config.TOOL_SERVER_CONNECTIONS) > 0:
                     log.error(
                         f"Error adding OAuth client for MCP tool server {server_id}: {e}"
                     )
-                    pass
 
 try:
     if ENABLE_STAR_SESSIONS_MIDDLEWARE:
