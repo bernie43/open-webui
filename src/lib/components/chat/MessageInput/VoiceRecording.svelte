@@ -17,7 +17,7 @@
 	export let transcribe = true;
 	export let displayMedia = false;
 
-	export let echoCancellation = true;
+	export let echoCancellation = false;
 	export let noiseSuppression = true;
 	export let autoGainControl = true;
 

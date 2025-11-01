@@ -1660,6 +1660,9 @@
 													class=" text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition rounded-full p-1.5 mr-0.5 self-center"
 													type="button"
 													on:click={async () => {
+														console.log("Init recording");
+														recording = true;
+														/*
 														try {
 															let stream = await navigator.mediaDevices
 																.getUserMedia({ audio: true })
@@ -1684,6 +1687,7 @@
 														} catch {
 															toast.error($i18n.t('Permission denied when accessing microphone'));
 														}
+														*/
 													}}
 													aria-label="Voice Input"
 												>
