@@ -146,6 +146,7 @@
 		if ($mobile) {
 			setTimeout(() => document.getElementById('chat-input')?.blur(), 0);
 		}
+		webSearchEnabled = false;
 	};
 
 	const inputVariableHandler = async (text: string): Promise<string> => {
