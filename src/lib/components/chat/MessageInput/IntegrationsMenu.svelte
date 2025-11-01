@@ -115,7 +115,7 @@
 		>
 			{#if tab === ''}
 				<div in:fly={{ x: -20, duration: 150 }}>
-					{#if tools}
+					<!-- {#if tools}
 						{#if Object.keys(tools).length > 0}
 							<button
 								class="flex w-full justify-between gap-2 items-center px-3 py-1.5 text-sm cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50"
@@ -141,7 +141,7 @@
 						<div class="py-4">
 							<Spinner />
 						</div>
-					{/if}
+					{/if} -->
 
 					{#if toggleFilters && toggleFilters.length > 0}
 						{#each toggleFilters.sort( (a, b) => a.name.localeCompare( b.name, undefined, { sensitivity: 'base' } ) ) as filter, filterIdx (filter.id)}
@@ -311,9 +311,8 @@
 						</Tooltip>
 					{/if}
 				</div>
-			{:else if tab === 'tools' && tools}
 				<div in:fly={{ x: 20, duration: 150 }}>
-					<button
+					<!-- <button
 						class="flex w-full justify-between gap-2 items-center px-3 py-1.5 text-sm cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50"
 						on:click={() => {
 							tab = '';
@@ -327,7 +326,7 @@
 								<span class="ml-0.5 text-gray-500">{Object.keys(tools).length}</span>
 							</div>
 						</div>
-					</button>
+					</button> -->
 
 					{#each Object.keys(tools) as toolId}
 						<button
