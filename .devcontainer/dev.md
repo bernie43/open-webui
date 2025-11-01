@@ -19,6 +19,6 @@ docker context use remote-machine
 docker build -t open-webui-custom .
 docker context use desktop-linux
 
-Evtl:
-docker buildx create --use
-docker buildx build --platform linux/amd64 -t open-webui-custom .
+Local cross-platform build:
+docker buildx build --platform linux/amd64 -t open-webui-custom  --load .
+docker save open-webui-custom | docker --context remote-machine load
