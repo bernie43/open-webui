@@ -80,8 +80,8 @@
 	};
 
 	const normalizeRMS = (rms) => {
-		rms = rms * 10;
-		const exp = 1.5; // Adjust exponent value; values greater than 1 expand larger numbers more and compress smaller numbers more
+		rms = rms * 70;
+		const exp = 1.6; // Adjust exponent value; values greater than 1 expand larger numbers more and compress smaller numbers more
 		const scaledRMS = Math.pow(rms, exp);
 
 		// Scale between 0.01 (1%) and 1.0 (100%)
@@ -113,8 +113,9 @@
 
 					// Calculate RMS level from time domain data
 					const rmsLevel = calculateRMS(timeDomainData);
+					const normalizedRms = normalizeRMS(rmsLevel);
 					// Push the calculated decibel level to visualizerData
-					visualizerData.push(normalizeRMS(rmsLevel));
+					visualizerData.push(normalizedRms);
 
 					// Ensure visualizerData array stays within the buffer length
 					if (visualizerData.length >= VISUALIZER_BUFFER_LENGTH) {
