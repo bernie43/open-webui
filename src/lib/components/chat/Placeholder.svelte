@@ -17,7 +17,8 @@
 		temporaryChatEnabled,
 		selectedFolder,
 		chats,
-		currentChatPage
+		currentChatPage,
+		mobile
 	} from '$lib/stores';
 	import { sanitizeResponseContent, extractCurlyBraceWords } from '$lib/utils';
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -224,6 +225,12 @@
 						dispatch('upload', e.detail);
 					}}
 					on:submit={(e) => {
+						if ($mobile) {
+							setTimeout(() => {
+								document.activeElement?.blur();
+								document.getElementById('chat-input')?.blur();
+							}, 500);
+						}
 						dispatch('submit', e.detail);
 					}}
 				/>
