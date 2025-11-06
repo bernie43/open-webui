@@ -179,10 +179,10 @@
 										const cameraInputElement = document.getElementById('camera-input');
 
 										if (cameraInputElement) {
-											if ($mobile) {
-												document.activeElement.blur();
-											}
 											cameraInputElement.click();
+											if ($mobile) {
+												document.activeElement?.blur();
+											}
 										}
 									}
 								}
