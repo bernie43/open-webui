@@ -181,7 +181,7 @@
 										if (cameraInputElement) {
 											cameraInputElement.click();
 											if ($mobile) {
-												document.activeElement?.blur();
+												setTimeout(() => document.activeElement?.blur(), 50);
 											}
 										}
 									}

@@ -95,8 +95,8 @@
 		const timeDomainData = new Uint8Array(analyser.fftSize);
 
 		const noiseFloor = 0.005;
-		let rmsMin = noiseFloor;
-		let rmsMax = noiseFloor;
+		let rmsMin = 1;
+		let rmsMax = 0;
 
 		let lastSoundTime = Date.now();
 
@@ -112,11 +112,10 @@
 				rmsMax = Math.max(rmsMax, rmsLevel);
 
 				const normalizedRms = (rmsLevel - rmsMin) / (rmsMax);
-				const snr = (rmsLevel - rmsMin) / rmsMin;
-				const visualizeRms = snr > 0.2 ? Math.pow(normalizedRms, 0.25) : 0;
+				const visualizeRms = normalizedRms > 0.1 ? Math.pow(normalizedRms, 0.25) : 0;
 
 				if (window.__DEBUG__) {
-					console.log("rmsLevel", rmsLevel, "rmsMin", rmsMin, "rmsMax", rmsMax, "snr", snr, "normalizedRms", normalizedRms, "visualizeRms", visualizeRms);
+					console.log("rmsLevel", rmsLevel, "rmsMin", rmsMin, "rmsMax", rmsMax, "normalizedRms", normalizedRms, "visualizeRms", visualizeRms);
 				}
 
 				// Push the calculated decibel level to visualizerData
