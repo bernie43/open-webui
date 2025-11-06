@@ -361,7 +361,7 @@
 
 		await tick();
 		if (chatInput) {
-			if (!mobile) {
+			if (!$mobile) {
 				chatInput.focus();
 			}
 			chatInput.dispatchEvent(new Event('input'));
@@ -373,6 +373,10 @@
 				await tick();
 			} else {
 				chatInput.scrollTop = chatInput.scrollHeight;
+			}
+
+			if ($mobile) {
+				document.activeElement?.blur();
 			}
 		}
 	};
