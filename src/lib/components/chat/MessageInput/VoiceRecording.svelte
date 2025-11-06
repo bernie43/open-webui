@@ -82,12 +82,25 @@
 	};
 
 	const normalizeRMS = (rms) => {
-		rms = rms * 70;
-		const exp = 1.6; // Adjust exponent value; values greater than 1 expand larger numbers more and compress smaller numbers more
-		const scaledRMS = Math.pow(rms, exp);
-
+		const baseScale = 100;
+		
+		// Apply adaptive scaling based on the input level
+		// This helps with both Chrome's higher levels and Safari's lower levels
+		let scaledRMS = rms * baseScale;
+		
+		// Use a variable exponent that provides more dynamic range
+		// Lower values for quiet sounds (boosts them more), higher for loud sounds
+		const exp = scaledRMS < 0.5 ? 0.8 : 1.2;
+		
+		// Apply the exponent
+		scaledRMS = Math.pow(scaledRMS, exp);
+		
+		// Apply a final adjustment curve that's more responsive to different input levels
+		// This helps normalize the difference between browsers
+		const adjustedRMS = scaledRMS / (1 + scaledRMS * 0.5);
+		
 		// Scale between 0.01 (1%) and 1.0 (100%)
-		return Math.min(1.0, Math.max(0.01, scaledRMS));
+		return Math.min(1.0, Math.max(0.01, adjustedRMS));
 	};
 
 	const analyseAudio = (stream) => {
