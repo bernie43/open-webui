@@ -361,7 +361,9 @@
 
 		await tick();
 		if (chatInput) {
-			chatInput.focus();
+			if (!mobile) {
+				chatInput.focus();
+			}
 			chatInput.dispatchEvent(new Event('input'));
 
 			const words = extractCurlyBraceWords(prompt);
