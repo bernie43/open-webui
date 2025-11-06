@@ -71,30 +71,22 @@ export const transcribeAudio = async (token: string, file: File, language?: stri
 		data.append('language', language);
 	}
 
-	let error = null;
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort("Request timed out"), 20000);
+
 	const res = await fetch(`${AUDIO_API_BASE_URL}/transcriptions`, {
 		method: 'POST',
 		headers: {
 			Accept: 'application/json',
 			authorization: `Bearer ${token}`
 		},
+		signal: controller.signal,
 		body: data
 	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			error = err.detail;
-			console.error(err);
-			return null;
-		});
+	clearTimeout(timeoutId);
 
-	if (error) {
-		throw error;
-	}
-
-	return res;
+	const result = await res.json();
+	return result;
 };
 
 export const synthesizeOpenAISpeech = async (

@@ -6,6 +6,7 @@
 
 	import { transcribeAudio } from '$lib/apis/audio';
 	import XMark from '$lib/components/icons/XMark.svelte';
+	import Download from '$lib/components/icons/Download.svelte';
 
 	import dayjs from 'dayjs';
 	import LocalizedFormat from 'dayjs/plugin/localizedFormat';
@@ -27,7 +28,7 @@
 	export let onConfirm = (data) => {};
 
 	let loading = false;
-	let confirmed = false;
+	let shouldProcessAudio = true;
 
 	let durationSeconds = 0;
 	let durationCounter = null;
@@ -42,7 +43,7 @@
 
 	const stopDurationCounter = () => {
 		clearInterval(durationCounter);
-		durationSeconds = 0;
+		// durationSeconds = 0;
 	};
 
 	$: if (recording) {
@@ -63,6 +64,7 @@
 
 	let mediaRecorder;
 	let audioChunks = [];
+	let audioFile;
 
 	const MIN_DECIBELS = -45;
 	let VISUALIZER_BUFFER_LENGTH = 300;
@@ -103,52 +105,47 @@
 
 		let lastSoundTime = Date.now();
 
-		const detectSound = () => {
-			const processFrame = () => {
-				if (!recording || loading) return;
+		const processFrame = () => {
+			if (recording && !loading && !audioFile) {
+				analyser.getByteTimeDomainData(timeDomainData);
+				analyser.getByteFrequencyData(domainData);
 
-				if (recording && !loading) {
-					analyser.getByteTimeDomainData(timeDomainData);
-					analyser.getByteFrequencyData(domainData);
+				// Calculate RMS level from time domain data
+				const rmsLevel = calculateRMS(timeDomainData);
+				const normalizedRms = normalizeRMS(rmsLevel);
+				// Push the calculated decibel level to visualizerData
+				visualizerData.push(normalizedRms);
 
-					// Calculate RMS level from time domain data
-					const rmsLevel = calculateRMS(timeDomainData);
-					const normalizedRms = normalizeRMS(rmsLevel);
-					// Push the calculated decibel level to visualizerData
-					visualizerData.push(normalizedRms);
-
-					// Ensure visualizerData array stays within the buffer length
-					if (visualizerData.length >= VISUALIZER_BUFFER_LENGTH) {
-						visualizerData.shift();
-					}
-
-					visualizerData = visualizerData;
-
-					// if (domainData.some((value) => value > 0)) {
-					// 	lastSoundTime = Date.now();
-					// }
-
-					// if (recording && Date.now() - lastSoundTime > 3000) {
-					// 	if ($settings?.speechAutoSend ?? false) {
-					// 		confirmRecording();
-					// 	}
-					// }
+				// Ensure visualizerData array stays within the buffer length
+				if (visualizerData.length >= VISUALIZER_BUFFER_LENGTH) {
+					visualizerData.shift();
 				}
 
-				window.requestAnimationFrame(processFrame);
-			};
+				visualizerData = visualizerData;
 
-			window.requestAnimationFrame(processFrame);
+				// if (domainData.some((value) => value > 0)) {
+				// 	lastSoundTime = Date.now();
+				// }
+
+				// if (recording && Date.now() - lastSoundTime > 3000) {
+				// 	if ($settings?.speechAutoSend ?? false) {
+				// 		confirmRecording();
+				// 	}
+				// }
+				window.requestAnimationFrame(processFrame);
+			}
 		};
 
-		detectSound();
+		processFrame();
 	};
 
-	const onStopHandler = async (audioBlob, ext: string = 'wav') => {
-		// Create a blob from the audio chunks
+	const onFinished = () => {
+		audioFile = null;
+		recording = false;
+	}
 
-		await tick();
-		const file = blobToFile(audioBlob, `Recording-${dayjs().format('L LT')}.${ext}`);
+	const transcribeRecording = async () => {
+		const file = audioFile;
 
 		if (transcribe) {
 			if ($config.audio.stt.engine === 'web' || ($settings?.audio?.stt?.engine ?? '') === 'web') {
@@ -156,29 +153,33 @@
 				return;
 			}
 
+			loading = true;
+
 			const res = await transcribeAudio(
 				localStorage.token,
 				file,
 				$settings?.audio?.stt?.language
 			).catch((error) => {
 				toast.error(`${error}`);
-				return null;
 			});
+			loading = false;
 
 			if (res) {
 				console.log(res);
 				onConfirm(res);
+				onFinished();
 			}
 		} else {
 			onConfirm({
-				file: file,
-				blob: audioBlob
+				file: file
 			});
+			onFinished();
 		}
 	};
 
 	const startRecording = async () => {
 		loading = true;
+		shouldProcessAudio = true;
 
 		try {
 			if (displayMedia) {
@@ -226,30 +227,30 @@
 			analyseAudio(stream);
 		};
 		mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+
 		mediaRecorder.onstop = async () => {
 			console.log('Recording stopped');
+			if (shouldProcessAudio) {
+				if (audioChunks) {
+					// Use the actual type provided by MediaRecorder
+					let type = audioChunks[0]?.type || mediaRecorder.mimeType || 'audio/webm';
 
-			if (confirmed) {
-				// Use the actual type provided by MediaRecorder
-				let type = audioChunks[0]?.type || mediaRecorder.mimeType || 'audio/webm';
+					// split `/` and `;` to get the extension
+					let ext = type.split('/')[1].split(';')[0] || 'webm';
 
-				// split `/` and `;` to get the extension
-				let ext = type.split('/')[1].split(';')[0] || 'webm';
+					// If not audio, default to audio/webm
+					if (!type.startsWith('audio/')) {
+						ext = 'webm';
+					}
 
-				// If not audio, default to audio/webm
-				if (!type.startsWith('audio/')) {
-					ext = 'webm';
+					const audioBlob = new Blob(audioChunks, { type: type });
+					audioFile = blobToFile(audioBlob, `Recording-${dayjs().format()}.${ext}`);	
+
+					await transcribeRecording();
 				}
 
-				const audioBlob = new Blob(audioChunks, { type: type });
-				await onStopHandler(audioBlob, ext);
-
-				confirmed = false;
-				loading = false;
+				audioChunks = [];
 			}
-
-			audioChunks = [];
-			recording = false;
 		};
 
 		try {
@@ -304,12 +305,10 @@
 						// Restart recognition after it ends
 						console.log('recognition ended');
 
-						confirmRecording();
 						onConfirm({
 							text: transcription
 						});
-						confirmed = false;
-						loading = false;
+						onFinished();
 					};
 
 					// Event triggered when an error occurs
@@ -329,37 +328,50 @@
 		if (recording && mediaRecorder) {
 			await mediaRecorder.stop();
 		}
-
 		if (speechRecognition) {
 			speechRecognition.stop();
 		}
 
 		stopDurationCounter();
-		audioChunks = [];
 
 		if (stream) {
 			const tracks = stream.getTracks();
 			tracks.forEach((track) => track.stop());
 		}
-
 		stream = null;
 	};
 
 	const confirmRecording = async () => {
 		loading = true;
-		confirmed = true;
 
-		if (recording && mediaRecorder) {
-			await mediaRecorder.stop();
+		if (!audioFile) {
+			shouldProcessAudio = true;
+			await stopRecording();
 		}
-		clearInterval(durationCounter);
-
-		if (stream) {
-			const tracks = stream.getTracks();
-			tracks.forEach((track) => track.stop());
+		else {
+			await transcribeRecording();
 		}
+		loading = false;
+	};
 
-		stream = null;
+	const downloadAudioFile = () => {
+		if (audioFile) {
+			// Create a URL for the file
+			const url = URL.createObjectURL(audioFile);
+			
+			// Create a temporary anchor element
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = audioFile.name;
+			
+			// Trigger the download
+			document.body.appendChild(a);
+			a.click();
+			
+			// Clean up
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		}
 	};
 
 	let resizeObserver;
@@ -408,6 +420,7 @@
 
              rounded-full"
 			on:click={async () => {
+				shouldProcessAudio = false;
 				stopRecording();
 				onCancel();
 			}}
@@ -546,6 +559,15 @@
 					>
 				</div>
 			{:else}
+				{#if audioFile}
+					<button
+						type="button"
+						class="p-1.5 mr-1 bg-indigo-400/20 text-indigo-600 dark:text-indigo-300 rounded-full"
+						on:click={downloadAudioFile}
+					>
+						<Download className={'size-4'} />
+					</button>
+				{/if}
 				<button
 					type="button"
 					class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"

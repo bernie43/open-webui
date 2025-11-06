@@ -1038,7 +1038,7 @@
 								document.getElementById('chat-input')?.focus();
 							}}
 							onConfirm={async (data) => {
-								const { text, filename } = data;
+								const { text } = data;
 
 								recording = false;
 
