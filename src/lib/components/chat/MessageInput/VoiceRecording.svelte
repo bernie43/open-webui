@@ -81,29 +81,6 @@
 		return Math.sqrt(sumSquares / data.length);
 	};
 
-	const normalizeRMS = (rms) => {
-		// Define baseline noise level (approximately the "no voice" level)
-		const noiseBaseline = 0.005;
-		
-		// If at or below baseline, return 0
-		if (rms <= noiseBaseline) {
-			return 0;
-		}
-		
-		const signalToNoiseRatio = (rms - noiseBaseline) / noiseBaseline;
-		
-		// For low values (up to 2x baseline), use a steep curve
-		if (signalToNoiseRatio <= 2) {
-			// Map 0-2 range to 0-0.9 range
-			// Using a power function with exponent > 1 for steep initial rise
-			return Math.pow(signalToNoiseRatio / 2, 2.5) * 0.9;
-		} else {
-			// For higher values, use a gentler curve that approaches 1
-			const remainingRatio = (signalToNoiseRatio - 2) / (159 - 2);
-			return 0.9 + Math.log10(1 + remainingRatio * 9) / Math.log10(10) * 0.1;
-		}
-	};
-
 	const analyseAudio = (stream) => {
 		const audioContext = new AudioContext();
 		const audioStreamSource = audioContext.createMediaStreamSource(stream);
@@ -117,6 +94,10 @@
 		const domainData = new Uint8Array(bufferLength);
 		const timeDomainData = new Uint8Array(analyser.fftSize);
 
+		const noiseFloor = 0.005;
+		let rmsMin = noiseFloor;
+		let rmsMax = noiseFloor;
+
 		let lastSoundTime = Date.now();
 
 		const processFrame = () => {
@@ -126,9 +107,20 @@
 
 				// Calculate RMS level from time domain data
 				const rmsLevel = calculateRMS(timeDomainData);
-				const normalizedRms = normalizeRMS(rmsLevel);
+
+				rmsMin = rmsLevel > noiseFloor ? Math.min(rmsMin, rmsLevel) : rmsMin;
+				rmsMax = Math.max(rmsMax, rmsLevel);
+
+				const normalizedRms = (rmsLevel - rmsMin) / (rmsMax);
+				const snr = (rmsLevel - rmsMin) / rmsMin;
+				const visualizeRms = snr > 0.2 ? Math.pow(normalizedRms, 0.25) : 0;
+
+				if (window.__DEBUG__) {
+					console.log("rmsLevel", rmsLevel, "rmsMin", rmsMin, "rmsMax", rmsMax, "snr", snr, "normalizedRms", normalizedRms, "visualizeRms", visualizeRms);
+				}
+
 				// Push the calculated decibel level to visualizerData
-				visualizerData.push(normalizedRms);
+				visualizerData.push(visualizeRms);
 
 				// Ensure visualizerData array stays within the buffer length
 				if (visualizerData.length >= VISUALIZER_BUFFER_LENGTH) {
@@ -150,7 +142,7 @@
 			}
 		};
 
-		processFrame();
+		setTimeout(processFrame, 100);
 	};
 
 	const onFinished = () => {
@@ -436,6 +428,7 @@
 			on:click={async () => {
 				shouldProcessAudio = false;
 				stopRecording();
+				onFinished();
 				onCancel();
 			}}
 		>
