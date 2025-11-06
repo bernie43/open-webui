@@ -82,25 +82,26 @@
 	};
 
 	const normalizeRMS = (rms) => {
-		const baseScale = 100;
+		// Define baseline noise level (approximately the "no voice" level)
+		const noiseBaseline = 0.005;
 		
-		// Apply adaptive scaling based on the input level
-		// This helps with both Chrome's higher levels and Safari's lower levels
-		let scaledRMS = rms * baseScale;
+		// If at or below baseline, return 0
+		if (rms <= noiseBaseline) {
+			return 0;
+		}
 		
-		// Use a variable exponent that provides more dynamic range
-		// Lower values for quiet sounds (boosts them more), higher for loud sounds
-		const exp = scaledRMS < 0.5 ? 0.8 : 1.2;
+		const signalToNoiseRatio = (rms - noiseBaseline) / noiseBaseline;
 		
-		// Apply the exponent
-		scaledRMS = Math.pow(scaledRMS, exp);
-		
-		// Apply a final adjustment curve that's more responsive to different input levels
-		// This helps normalize the difference between browsers
-		const adjustedRMS = scaledRMS / (1 + scaledRMS * 0.5);
-		
-		// Scale between 0.01 (1%) and 1.0 (100%)
-		return Math.min(1.0, Math.max(0.01, adjustedRMS));
+		// For low values (up to 2x baseline), use a steep curve
+		if (signalToNoiseRatio <= 2) {
+			// Map 0-2 range to 0-0.9 range
+			// Using a power function with exponent > 1 for steep initial rise
+			return Math.pow(signalToNoiseRatio / 2, 2.5) * 0.9;
+		} else {
+			// For higher values, use a gentler curve that approaches 1
+			const remainingRatio = (signalToNoiseRatio - 2) / (159 - 2);
+			return 0.9 + Math.log10(1 + remainingRatio * 9) / Math.log10(10) * 0.1;
+		}
 	};
 
 	const analyseAudio = (stream) => {
