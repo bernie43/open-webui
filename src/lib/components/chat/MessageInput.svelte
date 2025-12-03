@@ -144,7 +144,7 @@
 	const handleSubmit = () => {
 		dispatch('submit', prompt);
 		if ($mobile) {
-			setTimeout(() => document.getElementById('chat-input')?.blur(), 0);
+			setTimeout(() => document.getElementById('chat-input')?.blur(), 100);
 		}
 	};
 
