@@ -175,27 +175,28 @@
 				return '{{CLIPBOARD}}';
 			});
 
-			const clipboardItems = await navigator.clipboard.read();
+			const clipboardItems = await navigator.clipboard.read().catch((err) => {
+				console.error('Failed to read clipboard items:', err);
+				return [];
+			});
 
-			let imageUrl = null;
 			for (const item of clipboardItems) {
-				// Check for known image types
 				for (const type of item.types) {
 					if (type.startsWith('image/')) {
 						const blob = await item.getType(type);
-						imageUrl = URL.createObjectURL(blob);
+						const reader = new FileReader();
+						reader.onload = (event) => {
+							files = [
+								...files,
+								{
+									type: 'image',
+									url: event.target.result as string
+								}
+							];
+						};
+						reader.readAsDataURL(blob);
 					}
 				}
-			}
-
-			if (imageUrl) {
-				files = [
-					...files,
-					{
-						type: 'image',
-						url: imageUrl
-					}
-				];
 			}
 
 			text = text.replaceAll('{{CLIPBOARD}}', clipboardText);
@@ -1049,7 +1050,7 @@
 								recording = false;
 
 								await tick();
-								insertTextAtCursor(text);
+								await insertTextAtCursor(text);
 
 								await tick();
 								document.getElementById('chat-input')?.focus();
@@ -1068,6 +1069,12 @@
 							handleSubmit();
 						}}
 					>
+						<button
+                            id="generate-message-pair-button"
+                            class="hidden"
+                            on:click={() => createMessagePair(prompt)}
+                        />
+
 						<div
 							id="message-input-container"
 							class="{recording ? 'opacity-30 mt-3' : ''} flex-1 flex flex-col relative w-full shadow-lg rounded-3xl border {$temporaryChatEnabled
@@ -1080,15 +1087,10 @@
 									<div class="flex items-center justify-between w-full">
 										<div class="pl-[1px] flex items-center gap-2 text-sm dark:text-gray-500">
 											<img
-												crossorigin="anonymous"
-												alt="model profile"
-												class="size-3.5 max-w-[28px] object-cover rounded-full"
-												src={$models.find((model) => model.id === atSelectedModel.id)?.info?.meta
-													?.profile_image_url ??
-													($i18n.language === 'dg-DG'
-														? `${WEBUI_BASE_URL}/doge.png`
-														: `${WEBUI_BASE_URL}/static/favicon.png`)}
-											/>
+                                                alt="model profile"
+                                                class="size-3.5 max-w-[28px] object-cover rounded-full"
+                                                src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${$models.find((model) => model.id === atSelectedModel.id).id}&lang=${$i18n.language}`}
+                                            />
 											<div class="translate-y-[0.5px]">
 												<span class="">{atSelectedModel.name}</span>
 											</div>

@@ -249,7 +249,7 @@
 					}
 
 					const audioBlob = new Blob(audioChunks, { type: type });
-					audioFile = blobToFile(audioBlob, `Recording-${dayjs().format()}.${ext}`);	
+					audioFile = blobToFile(audioBlob, `Recording-${dayjs().format()}.${ext}`);
 
 					await transcribeRecording();
 				}
@@ -363,16 +363,16 @@
 		if (audioFile) {
 			// Create a URL for the file
 			const url = URL.createObjectURL(audioFile);
-			
+
 			// Create a temporary anchor element
 			const a = document.createElement('a');
 			a.href = url;
 			a.download = audioFile.name;
-			
+
 			// Trigger the download
 			document.body.appendChild(a);
 			a.click();
-			
+
 			// Clean up
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
