@@ -1107,6 +1107,11 @@ def apply_params_to_form_data(form_data, model):
 
     return form_data
 
+def pop_system_message(messages: list[dict]) -> Optional[dict]:
+    for i, message in enumerate(messages):
+        if message.get("role") == "system":
+            return messages.pop(i)
+    return None
 
 async def process_chat_payload(request, form_data, user, metadata, model):
     # Pipeline Inlet -> Filter Inlet -> Chat Memory -> Chat Web Search -> Chat Image Generation
@@ -1116,13 +1121,12 @@ async def process_chat_payload(request, form_data, user, metadata, model):
     form_data = apply_params_to_form_data(form_data, model)
     log.debug(f"form_data: {form_data}")
 
-    system_message = get_system_message(form_data.get("messages", []))
+    system_message = pop_system_message(form_data.get("messages", []))
     if system_message:  # Chat Controls/User Settings
         try:
             # User System Prompt: Append
-            # User System Prompt is already included in form_data => ""
             form_data = apply_system_prompt_to_body(
-                "", form_data, metadata, user, replace=False
+                system_message.get("content"), form_data, metadata, user, replace=False
             )  # Required to handle system prompt variables
         except:
             pass
