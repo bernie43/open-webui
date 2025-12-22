@@ -246,14 +246,14 @@
 					console.log('Shortcut triggered: GENERATE_MESSAGE_PAIR');
 					event.preventDefault();
 					document.getElementById('generate-message-pair-button')?.click();
-				} else if (
+				} /* else if (
 					isShortcutMatch(event, shortcuts[Shortcut.REGENERATE_RESPONSE]) &&
 					document.activeElement?.id === 'chat-input'
 				) {
 					console.log('Shortcut triggered: REGENERATE_RESPONSE');
 					event.preventDefault();
 					[...document.getElementsByClassName('regenerate-response-button')]?.at(-1)?.click();
-				}
+				} */
 			});
 		};
 		setupKeyboardShortcuts();
